@@ -18,6 +18,7 @@ from einops import rearrange
 
 cache_dir = '/stable-diffusion-cache/models'
 
+script_directory = os.path.dirname(os.path.abspath(__file__))
 
 class DownloadAndLoadEasyAnimateModel:
     @classmethod
@@ -43,7 +44,7 @@ class DownloadAndLoadEasyAnimateModel:
     CATEGORY = "EasyanimateWrapper"
 
     def loadmodel(self, model, precision):
-        config_path = "./config/easyanimate_video_slicevae_motion_module_v3.yaml"
+        config_path = f"{script_directory}/config/easyanimate_video_slicevae_motion_module_v3.yaml"
         config = OmegaConf.load(config_path)
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
