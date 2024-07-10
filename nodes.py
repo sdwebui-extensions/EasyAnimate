@@ -203,7 +203,7 @@ class EasyAnimateSampler:
                     guidance_scale = cfg,
                     num_inference_steps = steps,
                 ).videos
-            videos = rearrange(sample, "b c t h w -> (b t) c h w")
+            videos = rearrange(sample, "b c t h w -> (b t) h w c")
         return (videos,)   
     
 
