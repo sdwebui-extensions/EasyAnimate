@@ -177,6 +177,8 @@ class EasyAnimateSampler:
         generator= torch.Generator(device).manual_seed(seed)
 
         pipeline.transformer.to(device)
+        prompt = ' '.join([prompt, 'The video is of high quality, and the view is very clear. High quality, masterpiece, best quality, highres, ultra-detailed, fantastic.'])
+        negative_prompt = ' '.join([negative_prompt, 'The video is not of a high quality, it has a low resolution, and the audio quality is not clear. Strange motion trajectory, a poor composition and deformed video, low resolution, duplicate and ugly, strange body structure, long and strange neck, bad teeth, bad eyes, bad limbs, bad hands, rotating camera, blurry camera, shaking camera. Deformation, low-resolution, blurry, ugly, distortion'])
 
         with torch.no_grad():
             if pipeline.transformer.config.in_channels == 12:
