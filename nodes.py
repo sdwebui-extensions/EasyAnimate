@@ -43,6 +43,8 @@ class DownloadAndLoadEasyAnimateModel:
     CATEGORY = "EasyanimateWrapper"
 
     def loadmodel(self, model, precision):
+        config_path = "./config/easyanimate_video_slicevae_motion_module_v3.yaml"
+        config = OmegaConf.load(config_path)
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
         dtype = {"bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}[precision]
@@ -68,8 +70,6 @@ class DownloadAndLoadEasyAnimateModel:
         ).to(dtype)
 
         scheduler = EulerDiscreteScheduler.from_pretrained(model_path, subfolder= 'scheduler')
-        config_path = "./config/easyanimate_video_slicevae_motion_module_v3.yaml"
-        config = OmegaConf.load(config_path)
         
         print("Load TRANSFORMER...")
         transformer = Transformer3DModel.from_pretrained(model_path, subfolder= 'transformer', transformer_additional_kwargs=OmegaConf.to_container(config['transformer_additional_kwargs'])).to(dtype).eval()   
