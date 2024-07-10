@@ -117,10 +117,6 @@ class EasyAnimateSampler:
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "steps": ("INT", {"default": 25, "min": 1, "max": 200, "step": 1}),
                 "cfg": ("FLOAT", {"default": 5.0, "min": 0.0, "max": 20.0, "step": 0.01}),
-                "optional":{
-                    "start_img": ("IMAGE",),
-                    "end_img": ("IMAGE",),
-                },
                 "scheduler": (
                     [ 
                         "Euler",
@@ -135,7 +131,11 @@ class EasyAnimateSampler:
                     ),
                 "prompt": ("STRING", {"multiline": False, "default": "",}),
                 "negative_prompt": ("STRING", {"multiline": False, "default": "",}),
-            }
+            },
+            "optional":{
+                "start_img": ("IMAGE",),
+                "end_img": ("IMAGE",),
+            },
         }
     
     RETURN_TYPES = ("IMAGE",)
