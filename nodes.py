@@ -50,7 +50,7 @@ class DownloadAndLoadEasyAnimateModel:
         offload_device = mm.unet_offload_device()
         dtype = {"bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}[precision]
 
-        pbar = ProgressBar(4)
+        pbar = ProgressBar(3)
 
         model_path = os.path.join(folder_paths.models_dir, "EasyAnimate", model)
       
@@ -59,7 +59,6 @@ class DownloadAndLoadEasyAnimateModel:
                 model_path = os.path.join(cache_dir, 'EasyAnimate', model)
             else:
                 print(f"Downloading easyanimate model to: {model_path}")
-        pbar.update(1)
 
         if OmegaConf.to_container(config['vae_kwargs'])['enable_magvit']:
             Choosen_AutoencoderKL = AutoencoderKLMagvit
@@ -69,11 +68,13 @@ class DownloadAndLoadEasyAnimateModel:
             model_path, 
             subfolder="vae", 
         ).to(dtype)
+        pbar.update(1)
 
         scheduler = EulerDiscreteScheduler.from_pretrained(model_path, subfolder= 'scheduler')
         
         print("Load TRANSFORMER...")
-        transformer = Transformer3DModel.from_pretrained(model_path, subfolder= 'transformer', transformer_additional_kwargs=OmegaConf.to_container(config['transformer_additional_kwargs'])).to(dtype).eval()   
+        transformer = Transformer3DModel.from_pretrained(model_path, subfolder= 'transformer', transformer_additional_kwargs=OmegaConf.to_container(config['transformer_additional_kwargs'])).to(dtype).eval()  
+        pbar.update(1) 
         if transformer.config.in_channels == 12:
             clip_image_encoder = CLIPVisionModelWithProjection.from_pretrained(
                 model_path, subfolder="image_encoder"
@@ -84,6 +85,7 @@ class DownloadAndLoadEasyAnimateModel:
         else:
             clip_image_encoder = None
             clip_image_processor = None   
+        pbar.update(1)
 
         pipeline = EasyAnimateInpaintPipeline.from_pretrained(
                 model_path,
