@@ -70,6 +70,24 @@ def save_videos_grid(videos: torch.Tensor, path: str, rescale=False, n_rows=6, f
             path = path.replace('.mp4', '.gif')
         outputs[0].save(path, format='GIF', append_images=outputs, save_all=True, duration=100, loop=0)
 
+def pil2tensor(image):
+    return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
+
+def tensor2pil(image):
+    return Image.fromarray(np.clip(255. * image.cpu().numpy().squeeze(0), 0, 255).astype(np.uint8))
+
+def numpy2pil(image):
+    return Image.fromarray(np.clip(255. * image.squeeze(0), 0, 255).astype(np.uint8))
+
+def to_pil(image):
+    if isinstance(image, Image.Image):
+        return image
+    if isinstance(image, torch.Tensor):
+        return tensor2pil(image)
+    if isinstance(image, np.ndarray):
+        return numpy2pil(image)
+    raise ValueError(f"Cannot convert {type(image)} to PIL.Image")
+
 def get_image_to_video_latent(validation_image_start, validation_image_end, video_length, sample_size):
     if validation_image_start is not None and validation_image_end is not None:
         if type(validation_image_start) is str and os.path.isfile(validation_image_start):
@@ -84,7 +102,7 @@ def get_image_to_video_latent(validation_image_start, validation_image_end, vide
         if type(image_start) is list:
             clip_image = clip_image[0]
             start_video = torch.cat(
-                [torch.from_numpy(np.array(_image_start)).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0) for _image_start in image_start], 
+                [torch.from_numpy(np.array(to_pil(_image_start))).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0) for _image_start in image_start], 
                 dim=2
             )
             input_video = torch.tile(start_video[:, :, :1], [1, 1, video_length, 1, 1])
@@ -94,7 +112,7 @@ def get_image_to_video_latent(validation_image_start, validation_image_end, vide
             input_video_mask[:, :, len(image_start):] = 255
         else:
             input_video = torch.tile(
-                torch.from_numpy(np.array(image_start)).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0), 
+                torch.from_numpy(np.array(to_pil(image_start))).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0), 
                 [1, 1, video_length, 1, 1]
             )
             input_video_mask = torch.zeros_like(input_video[:, :1])
@@ -103,7 +121,7 @@ def get_image_to_video_latent(validation_image_start, validation_image_end, vide
         if type(image_end) is list:
             image_end = [_image_end.resize(image_start[0].size if type(image_start) is list else image_start.size) for _image_end in image_end]
             end_video = torch.cat(
-                [torch.from_numpy(np.array(_image_end)).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0) for _image_end in image_end], 
+                [torch.from_numpy(np.array(to_pil(_image_end))).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0) for _image_end in image_end], 
                 dim=2
             )
             input_video[:, :, -len(end_video):] = end_video
@@ -111,7 +129,7 @@ def get_image_to_video_latent(validation_image_start, validation_image_end, vide
             input_video_mask[:, :, -len(image_end):] = 0
         else:
             image_end = image_end.resize(image_start[0].size if type(image_start) is list else image_start.size)
-            input_video[:, :, -1:] = torch.from_numpy(np.array(image_end)).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0)
+            input_video[:, :, -1:] = torch.from_numpy(np.array(to_pil(image_end))).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0)
             input_video_mask[:, :, -1:] = 0
 
         input_video = input_video / 255
@@ -125,7 +143,7 @@ def get_image_to_video_latent(validation_image_start, validation_image_end, vide
         if type(image_start) is list:
             clip_image = clip_image[0]
             start_video = torch.cat(
-                [torch.from_numpy(np.array(_image_start)).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0) for _image_start in image_start], 
+                [torch.from_numpy(np.array(to_pil(_image_start))).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0) for _image_start in image_start], 
                 dim=2
             )
             input_video = torch.tile(start_video[:, :, :1], [1, 1, video_length, 1, 1])
@@ -136,7 +154,7 @@ def get_image_to_video_latent(validation_image_start, validation_image_end, vide
             input_video_mask[:, :, len(image_start):] = 255
         else:
             input_video = torch.tile(
-                torch.from_numpy(np.array(image_start)).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0), 
+                torch.from_numpy(np.array(to_pil(image_start))).squeeze().permute(2, 0, 1).unsqueeze(1).unsqueeze(0), 
                 [1, 1, video_length, 1, 1]
             ) / 255
             input_video_mask = torch.zeros_like(input_video[:, :1])

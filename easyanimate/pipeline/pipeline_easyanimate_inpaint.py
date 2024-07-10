@@ -1061,6 +1061,8 @@ class EasyAnimateInpaintPipeline(DiffusionPipeline):
         # 10. Denoising loop
         num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
         self._num_timesteps = len(timesteps)
+        from comfy.utils import ProgressBar
+        pbar = ProgressBar(num_inference_steps)
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
                 latent_model_input = torch.cat([latents] * 2) if do_classifier_free_guidance else latents
@@ -1129,6 +1131,7 @@ class EasyAnimateInpaintPipeline(DiffusionPipeline):
                     if callback is not None and i % callback_steps == 0:
                         step_idx = i // getattr(self.scheduler, "order", 1)
                         callback(step_idx, t, latents)
+                pbar.update(1)
 
         gc.collect()
         torch.cuda.empty_cache()

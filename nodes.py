@@ -1,3 +1,4 @@
+import PIL.Image
 import comfy.model_management as mm
 from comfy.utils import ProgressBar, load_torch_file
 import folder_paths
@@ -185,8 +186,8 @@ class EasyAnimateSampler:
                     prompt, 
                     video_length = video_length,
                     negative_prompt = negative_prompt,
-                    height      = height,
-                    width       = width,
+                    height      = input_video.size(-2) // 16 * 16,
+                    width       = input_video.size(-1) // 16 * 16,
                     generator   = generator,
                     guidance_scale = cfg,
                     num_inference_steps = steps,
