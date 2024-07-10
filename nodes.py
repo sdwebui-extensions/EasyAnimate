@@ -117,7 +117,10 @@ class EasyAnimateSampler:
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "steps": ("INT", {"default": 25, "min": 1, "max": 200, "step": 1}),
                 "cfg": ("FLOAT", {"default": 5.0, "min": 0.0, "max": 20.0, "step": 0.01}),
-
+                "optional":{
+                    "start_img": ("IMAGE",),
+                    "end_img": ("IMAGE",),
+                },
                 "scheduler": (
                     [ 
                         "Euler",
@@ -140,7 +143,7 @@ class EasyAnimateSampler:
     FUNCTION = "process"
     CATEGORY = "EasyanimateWrapper"
 
-    def process(self, easyanimate_model, video_length, width, height, seed, steps, cfg, scheduler, prompt, negative_prompt, latent=None, denoise_strength=1.0):
+    def process(self, easyanimate_model, video_length, width, height, seed, steps, cfg, start_img, end_img, scheduler, prompt, negative_prompt, latent=None, denoise_strength=1.0):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
 
@@ -177,7 +180,7 @@ class EasyAnimateSampler:
         with torch.no_grad():
             if pipeline.transformer.config.in_channels == 12:
                 video_length = int(video_length // pipeline.vae.mini_batch_encoder * pipeline.vae.mini_batch_encoder) if video_length != 1 else 1
-                input_video, input_video_mask, clip_image = get_image_to_video_latent(None, None, video_length=video_length, sample_size=(height, width))
+                input_video, input_video_mask, clip_image = get_image_to_video_latent(start_img, end_img, video_length=video_length, sample_size=(height, width))
                 sample = pipeline(
                     prompt, 
                     video_length = video_length,
