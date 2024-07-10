@@ -143,7 +143,7 @@ class EasyAnimateSampler:
     FUNCTION = "process"
     CATEGORY = "EasyanimateWrapper"
 
-    def process(self, easyanimate_model, video_length, width, height, seed, steps, cfg, start_img, end_img, scheduler, prompt, negative_prompt, latent=None, denoise_strength=1.0):
+    def process(self, easyanimate_model, video_length, width, height, seed, steps, cfg, scheduler, prompt, negative_prompt, start_img=None, end_img=None):
         device = mm.get_torch_device()
         offload_device = mm.unet_offload_device()
 
